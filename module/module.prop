@@ -1,0 +1,6 @@
+id=kill_qcom_lpa
+name=QcomLPA-Killer
+version=1.0.0
+versionCode=1
+author=Github@Shua-github
+description=干掉高通基带的LPA!
