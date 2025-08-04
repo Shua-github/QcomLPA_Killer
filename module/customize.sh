@@ -1,41 +1,45 @@
 #!/system/bin/sh
 
 SKIPUNZIP=0
-
-DATA_DIR="/data/adb/kill_qcom_lpa"
-FILE_LIST="$DATA_DIR/file_list"
-CACHE_DIR="$DATA_DIR/cache"
-OLD_HEX="a0000005591010ffffffff8900000100"
-NEW_HEX="a0000005591010ffffffff8900000101"
-HEXPATCH="$MODPATH/lib/hexpatch_arm64"
-
-if [ ! -d "$CACHE_DIR" ]; then
-    mkdir -p "$CACHE_DIR"
-fi
+MODDIR=$MODPATH
+. $MODDIR/env.sh
+HEXPATCH="$MODDIR/lib/hexpatch_arm64"
 
 chmod 755 "$HEXPATCH"
 
 ui_print "**********************************************"
 ui_print " QcomLPA-Killer 模块"
-ui_print " 模块路径: $MODPATH"
-ui_print "- 扫描系统分区并检查特征码..."
+ui_print " 模块路径: $MODDIR"
 
-rm -f "$FILE_LIST"
-FOUND=false
-
-while read -r filepath; do
-  [ -z "$filepath" ] && continue
-  [ ! -f "$filepath" ] && continue
-  
-  ui_print "- 正在检查文件: $(basename "$filepath")"
-  if "$HEXPATCH" -i "$filepath" -h "$OLD_HEX" | grep -q "true"; then
-    echo "$filepath" >> "$FILE_LIST"
-    FOUND=true
-    ui_print "- 在文件中发现特征码：$(basename "$filepath")"
+# 新增判断升级的逻辑
+if [ -d "$DATA_DIR" ]; then
+  ui_print "- 检测到已安装,跳过扫描与特征码检查"
+else
+  ui_print "- 扫描系统分区并检查特征码..."
+  if [ ! -d "$CACHE_DIR" ]; then
+    mkdir -p "$CACHE_DIR"
   fi
-done < <(find -L "/vendor/firmware_mnt/image" -type f -name "modem.*" 2>/dev/null)
+  rm -f "$FILE_LIST"
+  FOUND=false
 
-[ "$FOUND" = false ] && abort "! 未找到需要修补的特征码，模块可能无效于此设备"
+  while read -r filepath; do
+    [ -z "$filepath" ] && continue
+    [ ! -f "$filepath" ] && continue
+
+    ui_print "- 正在检查文件: $(basename "$filepath")"
+    result=$("$HEXPATCH" -i "$filepath" -h "$OLD_HEX" 2>&1)
+    if echo "$result" | grep -q "true"; then
+      echo "$filepath" >> "$FILE_LIST"
+      FOUND=true
+      ui_print "- 在文件中发现特征码：$(basename "$filepath")"
+    fi
+  done < <(find -L "$FIRMWARE_DIR" -type f -name "modem.*" 2>/dev/null)
+
+  if [ "$FOUND" = false ]; then
+    rm -rf "$DATA_DIR"
+    abort "! 未找到需要修补的特征码，模块可能无效于此设备"
+  fi
+fi
 
 ui_print " ✓ 设备兼容性检查通过"
 ui_print ""
@@ -72,23 +76,18 @@ while true ; do
 
       file_md5=$(md5sum "$filepath" | awk '{print $1}')
       cache_file="$CACHE_DIR/$filename.$file_md5"
-
-      if "$HEXPATCH" -i "$filepath" -h "$OLD_HEX" | grep -q "true"; then
-        ui_print "     - 发现特征码，正在修补..."
-        if "$HEXPATCH" -i "$filepath" -o "$cache_file" -h "$OLD_HEX" -p "$NEW_HEX" | grep -q "true"; then
-          if [ -s "$cache_file" ]; then
-            ui_print "     - 修补成功，已保存到缓存"
-            FOUND_PATCH=true
-          else
-            ui_print "     - 错误: 修补失败，生成的缓存文件为空"
-            rm -f "$cache_file"
-          fi
+      result=$("$HEXPATCH" -i "$filepath" -o "$cache_file" -h "$OLD_HEX" -p "$NEW_HEX" 2>&1)
+      if echo "$result" | grep -q "true"; then
+        if [ -s "$cache_file" ]; then
+          ui_print "     - 修补成功，已保存到缓存"
+          FOUND_PATCH=true
         else
-          ui_print "     - 错误: 修补过程失败"
+          abort "     - 错误: 修补失败，生成的缓存文件为空"
           rm -f "$cache_file"
         fi
       else
-        ui_print "     - 未发现特征码，无需修补"
+        abort "     - 错误: 修补过程失败, 结果: $result"
+        rm -f "$cache_file"
       fi
     done < "$FILE_LIST"
 

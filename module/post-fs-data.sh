@@ -1,10 +1,8 @@
 #!/system/bin/sh
 
-# 定义数据目录
-DATA_DIR="/data/adb/kill_qcom_lpa"
-FILE_LIST="$DATA_DIR/file_list"
-CACHE_DIR="$DATA_DIR/cache"
-LOG_FILE="$DATA_DIR/log.txt"
+# 常量
+MODDIR=${0%/*}
+. $MODDIR/env.sh
 
 # 统一的日志函数
 log() {
@@ -55,6 +53,7 @@ while read -r original_path; do
     else
         log "警告: 原始系统文件不存在: $original_path"
     fi
+    # 恢复SLinux上下文
     restorecon "$original_path"
 done < "$FILE_LIST"
 

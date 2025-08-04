@@ -1,0 +1,1 @@
+rm -rf "/data/adb/kill_qcom_lpa"
