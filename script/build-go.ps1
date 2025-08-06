@@ -1,35 +1,32 @@
 ﻿$OutputEncoding = [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding($false)
 
-$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
-$ARCH_FILE = Join-Path $ScriptDir "arch"
-
-# 读取 arch 文件所有行，去除空行和多余空白
-$ARCH_LIST = Get-Content $ARCH_FILE | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne "" }
-
-$GOOS = "android"
-$OUTPUT_DIR = Join-Path (Join-Path (Get-Location) "module") "lib"
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$archFile = Join-Path $scriptDir "arch"
+$archList = Get-Content $archFile | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne "" }
+$goOs = "android"
+$outputDir = Join-Path (Join-Path (Get-Location) "module") "lib"
 
 Push-Location ".\go"
 
-if (-not (Test-Path $OUTPUT_DIR)) {
-    New-Item -ItemType Directory -Path $OUTPUT_DIR | Out-Null
+if (-not (Test-Path $outputDir)) {
+    New-Item -ItemType Directory -Path $outputDir | Out-Null
 }
 
-foreach ($ARCH in $ARCH_LIST) {
-    $GOARCH = $ARCH
-    $OUTPUT_NAME = "hexpatch_$ARCH"
-    $OUTPUT_FILE = Join-Path $OUTPUT_DIR $OUTPUT_NAME
-    $env:GOOS = $GOOS
-    $env:GOARCH = $GOARCH
+foreach ($arch in $archList) {
+    $goArch = $arch
+    $outputName = "hexpatch_$arch"
+    $outputFile = Join-Path $outputDir $outputName
+    $env:GOOS = $goOs
+    $env:GOARCH = $goArch
 
-    Write-Host "🔨 开始构建架构：$ARCH"
+    Write-Host "🔨 开始构建架构：$arch"
 
-    & go build -v -o $OUTPUT_FILE main.go
+    & go build -v -o $outputFile main.go
 
     if ($LASTEXITCODE -eq 0) {
-        Write-Host "✅ 编译成功：$OUTPUT_FILE"
+        Write-Host "✅ 编译成功：$outputFile"
     } else {
-        Write-Host "❌ 编译失败：$ARCH"
+        Write-Host "❌ 编译失败：$arch"
         Exit 1
     }
 }

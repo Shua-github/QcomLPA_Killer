@@ -12,6 +12,7 @@ NEW_HEX="a0000005591010ffffffff8900000101"
 
 # 定义常量
 FIRMWARE_DIR="/vendor/firmware_mnt/image"
+MODEM_NAME="modem.*"
 RAW_ARCH=$(uname -m)
 if [ "$RAW_ARCH" = "aarch64" ] || [ "$RAW_ARCH" = "arm64" ]; then
   ARCH="arm64"

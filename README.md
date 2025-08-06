@@ -10,7 +10,8 @@
 ## 安装
 
 ### 获取
-- [释放](https://github.com/Shua-github/QcomLPA_Killer/releases)  
+- [释放](https://github.com/Shua-github/QcomLPA_Killer/releases)
+- [行动](https://github.com/Shua-github/QcomLPA_Killer/actions)
 
 ### 刷入
 - `ksud module install <zip_path>`  
@@ -18,5 +19,9 @@
 ## 提示
 - 出现问题反馈时请带上`/data/adb/kill_qcom_lpa/`下的`log.txt`文件  
 - 本项目针对`KernelSU`进行开发,不保证`Magisk`可用  
-- **释放**仅支持`arm64`的设备,不支持的设备请自行编译  
+- **释放**和**行动**仅支持`arm64`的设备,不支持的设备请自行编译  
 - `Windows`平台推荐使用`wsl2`进行构建  
+
+## 许可证
+- `./script/lib/*`为[./script/lib/zakosign-LICENSE](./script/lib/zakosign-LICENSE)
+- 其他文件均为[./LICENSE](./LICENSE)

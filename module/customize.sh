@@ -3,7 +3,7 @@
 SKIPUNZIP=0
 MODDIR=$MODPATH
 . $MODDIR/env.sh
-HEXPATCH="$MODDIR/lib/hexpatch_arm64"
+HEXPATCH="$MODDIR/lib/hexpatch_$ARCH"
 
 chmod 755 "$HEXPATCH"
 
@@ -33,7 +33,7 @@ else
       FOUND=true
       ui_print "- 在文件中发现特征码：$(basename "$filepath")"
     fi
-  done < <(find -L "$FIRMWARE_DIR" -type f -name "modem.*" 2>/dev/null)
+  done < <(find -L "$FIRMWARE_DIR" -type f -name "$MODEM_NAME" 2>/dev/null)
 
   if [ "$FOUND" = false ]; then
     rm -rf "$DATA_DIR"
