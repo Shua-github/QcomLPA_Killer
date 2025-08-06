@@ -28,8 +28,15 @@ jobs:
       shell: pwsh
       run: ./script/build.ps1
 
-    - name: 上传构建产物
+    - name: 上传 unsigned zip
       uses: actions/upload-artifact@v4
       with:
-        name: artifact
-        path: ./output/*
+        name: QcomLPA-Killer-no-sign
+        path: ./output/QcomLPA-Killer-no-sign.zip
+
+    - name: 上传 signed zip
+      uses: actions/upload-artifact@v4
+      with:
+        name: QcomLPA-Killer-debug-sign
+        path: ./output/QcomLPA-Killer-debug-sign.zip
+

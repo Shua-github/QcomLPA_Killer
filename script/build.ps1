@@ -4,14 +4,14 @@ $currentDir = Get-Location
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $sourceDir = Join-Path $currentDir "module"
 $targetFileDir = Join-Path $currentDir "output"
-$targetFileName = "QcomLPA-Killer.zip"
+$targetFileName = "QcomLPA-Killer-no-sign.zip"
 $targetFileSignName = "QcomLPA-Killer-debug-sign.zip"
 $zipPath = Join-Path $targetFileDir $targetFileName
+$signedZipPath = Join-Path $targetFileDir $targetFileSignName
 $goBuildScript = Join-Path $scriptDir "build-go.ps1"
 $libDir = Join-Path $scriptDir "lib"
 $zakoSignPath = Join-Path $libDir "zakosign"
 $keyPath = Join-Path $libDir "debug_sign.pem"
-$signedZipPath = Join-Path $targetFileDir $targetFileSignName
 
 Write-Host "🚀 开始编译 Go 模块..."
 & $goBuildScript
