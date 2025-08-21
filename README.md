@@ -14,7 +14,10 @@
 - [行动](https://github.com/Shua-github/QcomLPA_Killer/actions)
 
 ### 刷入
-- `ksud module install <zip_path>`  
+- `ksud module install <zip_path>`
+
+## 警告  
+- 本模块可能导致变砖,请自备救砖方式  
 
 ## 提示
 - 出现问题反馈时请带上`/data/adb/kill_qcom_lpa/`下的`log.txt`文件  
